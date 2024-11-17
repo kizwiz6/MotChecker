@@ -1,12 +1,95 @@
 ﻿@page "/"
+@using MotChecker.Components
+@using MotChecker.Services
+@using System.ComponentModel.DataAnnotations
+@inject IVehicleService VehicleService
+
+@*
+    Home page component that provides MOT history checking functionality.
+    Allows users to enter a vehicle registration and displays the MOT details.
+*@
 
 <PageTitle>MOT History Checker</PageTitle>
 
 <div class="container mx-auto px-4 py-8">
     <div class="max-w-2xl mx-auto">
+        @* Header section *@
         <div class="text-center mb-8">
             <h1 class="text-3xl font-bold text-gray-900">MOT History Checker</h1>
             <p class="mt-2 text-gray-600">Enter a vehicle registration number to check its MOT status</p>
         </div>
+
+        @* Search form section with validation *@
+        <div class="bg-white shadow-sm rounded-lg p-6 mb-6">
+            <EditForm Model="@searchModel" OnValidSubmit="HandleSearch">
+                <DataAnnotationsValidator />
+
+                <div class="mb-4">
+                    <label for="registration" class="block text-sm font-medium text-gray-700 mb-2">
+                        Vehicle Registration
+                    </label>
+                    <div class="flex gap-4">
+                        <InputText id="registration"
+                                   @bind-Value="searchModel.Registration"
+                                   class="block w-full rounded-md border border-gray-300 px-4 py-2
+                                      focus:border-blue-500 focus:ring-blue-500 uppercase"
+                                   placeholder="Enter registration (e.g., AB12CDE)" />
+
+                        <button type="submit"
+                                disabled="@isLoading"
+                                class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2
+                                       rounded-md font-medium disabled:bg-blue-400">
+                            @if (isLoading)
+                            {
+                                <span>Searching...</span>
+                            }
+                            else
+                            {
+                                <span>Search</span>
+                            }
+                        </button>
+                    </div>
+                    <ValidationMessage For="@(() => searchModel.Registration)" class="text-red-500 text-sm mt-1" />
+                </div>
+            </EditForm>
+        </div>
+
+        @* TODO: Error Message *@
+
+        @* TODO: Results *@
+
     </div>
 </div>
+
+@code {
+    private readonly SearchModel searchModel = new();
+    private VehicleDetails? vehicleDetails;
+    private bool isLoading;
+
+    private async Task HandleSearch()
+    {
+        try
+        {
+            isLoading = true;
+            vehicleDetails = null;
+
+            vehicleDetails = await VehicleService.GetVehicleDetailsAsync(searchModel.Registration);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Unable to retrieve vehicle details. Please try again.");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    public class SearchModel
+    {
+        [Required(ErrorMessage = "Please enter a registration number")]
+        [RegularExpression(@"^[A-Z0-9]{1,7}$",
+            ErrorMessage = "Please enter a valid UK registration number")]
+        public string Registration { get; set; } = string.Empty;
+    }
+}
