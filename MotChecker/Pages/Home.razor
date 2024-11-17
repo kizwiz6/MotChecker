@@ -10,12 +10,12 @@
     <div class="max-w-2xl mx-auto">
         @* Header section *@
         <div class="text-center mb-8">
-            <h1 class="text-3xl font-bold text-gray-900 mb-2">MOT History Checker</h1>
-            <p class="text-gray-600">Quick and easy access to vehicle MOT information</p>
+            <h1 class="text-3xl font-bold text-gray-900">MOT History Checker</h1>
+            <p class="mt-2 text-gray-600">Enter a vehicle registration number to check its MOT status</p>
         </div>
 
         @* Search form *@
-        <div class="bg-white shadow-sm rounded-lg p-6 mb-6 transform transition-all duration-200 hover:shadow-md">
+        <div class="bg-white shadow-sm rounded-lg p-6 mb-6">
             <EditForm Model="@searchModel" OnValidSubmit="HandleSearch">
                 <DataAnnotationsValidator />
 
@@ -26,20 +26,16 @@
                     <div class="flex gap-4">
                         <InputText id="registration"
                                    @bind-Value="searchModel.Registration"
-                                   class="block w-full rounded-md border border-gray-300 px-4 py-2
-                                      focus:border-primary-500 focus:ring-primary-500 uppercase
-                                      transition-colors duration-200"
+                                   @oninput="@(e => HandleInput(e.Value?.ToString()))"
+                                   class="block w-full rounded-md border border-gray-300 px-4 py-2"
                                    placeholder="Enter registration (e.g., AB12CDE)" />
 
                         <button type="submit"
                                 disabled="@isLoading"
-                                class="bg-primary-600 hover:bg-primary-700 text-white px-6 py-2
-                                       rounded-md font-medium disabled:bg-primary-400
-                                       transition-colors duration-200 min-w-[120px]
-                                       flex items-center justify-center">
+                                class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700">
                             @if (isLoading)
                             {
-                                <LoadingSpinner Size="4" Color="white" />
+                                <span>Searching...</span>
                             }
                             else
                             {
@@ -51,6 +47,7 @@
                 </div>
             </EditForm>
         </div>
+
 
         @* Error message *@
         @if (errorMessage is not null)
@@ -115,6 +112,14 @@
     private VehicleDetails? vehicleDetails;
     private string? errorMessage;
     private bool isLoading;
+
+    private void HandleInput(string? value)
+    {
+        if (value != null)
+        {
+            searchModel.Registration = value.ToUpper();
+        }
+    }
 
     private async Task HandleSearch()
     {

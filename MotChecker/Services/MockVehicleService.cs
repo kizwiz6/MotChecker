@@ -11,11 +11,16 @@ namespace MotChecker.Services
 
         public MockVehicleService(ILogger<MockVehicleService> logger)
         {
-            _logger = logger;
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         public async Task<VehicleDetails> GetVehicleDetailsAsync(string registration)
         {
+            if (string.IsNullOrWhiteSpace(registration))
+            {
+                throw new ArgumentException("Registration number cannot be empty or whitespace.", nameof(registration));
+            }
+
             _logger.LogInformation("Mock service retrieving details for: {Registration}", registration);
 
             // Simulate API delay
