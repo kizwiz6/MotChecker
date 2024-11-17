@@ -27,15 +27,12 @@
                         <InputText id="registration"
                                    @bind-Value="searchModel.Registration"
                                    @oninput="@(e => HandleInput(e.Value?.ToString()))"
-                                   class="block w-full rounded-md border border-gray-300 px-4 py-2
-                                      focus:border-primary-500 focus:ring-primary-500 uppercase"
+                                   class="block w-full rounded-md border border-gray-300 px-4 py-2"
                                    placeholder="Enter registration (e.g., AB12CDE)" />
 
                         <button type="submit"
                                 disabled="@isLoading"
-                                class="bg-primary-600 hover:bg-primary-700 text-white px-6 py-2
-                                       rounded-md font-medium disabled:bg-primary-400
-                                       min-w-[120px] flex items-center justify-center">
+                                class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700">
                             @if (isLoading)
                             {
                                 <span>Searching...</span>
@@ -50,6 +47,7 @@
                 </div>
             </EditForm>
         </div>
+
 
         @* Error message *@
         @if (errorMessage is not null)
