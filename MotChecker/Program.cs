@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using Microsoft.Extensions.Caching.Memory;
 using MotChecker;
 using MotChecker.Services;
 
@@ -12,5 +13,13 @@ builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.
 
 // Add memory cache
 builder.Services.AddMemoryCache();
+
+// Register Mock Service for development
+builder.Services.AddScoped<IVehicleService, MockVehicleService>();
+
+// Add logging
+builder.Services.AddLogging(logging => logging
+    .SetMinimumLevel(LogLevel.Information)
+);
 
 await builder.Build().RunAsync();
