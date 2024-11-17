@@ -1,7 +1,13 @@
 ﻿@namespace MotChecker.Components
 
-<div class="loading-spinner">
-    <div class="spinner-border text-primary" role="status">
-        <span class="visually-hidden">Loading...</span>
-    </div>
+<div class="flex justify-center items-center p-4">
+    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
 </div>
+
+@code {
+    [Parameter]
+    public string? Size { get; set; } = "8";
+
+    [Parameter]
+    public string? Color { get; set; } = "primary-600";
+}
