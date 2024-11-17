@@ -1,25 +1,19 @@
 ﻿@page "/"
 @using MotChecker.Components
 @using MotChecker.Services
-@using System.ComponentModel.DataAnnotations
 @inject IVehicleService VehicleService
-
-@*
-    Home page component that provides MOT history checking functionality.
-    Allows users to enter a vehicle registration and displays the MOT details.
-*@
 
 <PageTitle>MOT History Checker</PageTitle>
 
 <div class="container mx-auto px-4 py-8">
     <div class="max-w-2xl mx-auto">
-        @* Header section *@
+        @* Header *@
         <div class="text-center mb-8">
             <h1 class="text-3xl font-bold text-gray-900">MOT History Checker</h1>
             <p class="mt-2 text-gray-600">Enter a vehicle registration number to check its MOT status</p>
         </div>
 
-        @* Search form section with validation *@
+        @* Search Form *@
         <div class="bg-white shadow-sm rounded-lg p-6 mb-6">
             <EditForm Model="@searchModel" OnValidSubmit="HandleSearch">
                 <DataAnnotationsValidator />
@@ -54,16 +48,54 @@
             </EditForm>
         </div>
 
-        @* TODO: Error Message *@
+        @* Error Message *@
+        @if (errorMessage is not null)
+        {
+            <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-6" role="alert">
+                <p class="text-red-700">@errorMessage</p>
+            </div>
+        }
 
-        @* TODO: Results *@
-
+        @* Results *@
+        @if (vehicleDetails is not null)
+        {
+            <div class="bg-white shadow-sm rounded-lg p-6">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">Vehicle Details</h2>
+                <dl class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Registration</dt>
+                        <dd class="mt-1 text-lg text-gray-900">@vehicleDetails.Registration</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Make</dt>
+                        <dd class="mt-1 text-lg text-gray-900">@vehicleDetails.Make</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Model</dt>
+                        <dd class="mt-1 text-lg text-gray-900">@vehicleDetails.Model</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Colour</dt>
+                        <dd class="mt-1 text-lg text-gray-900">@vehicleDetails.Colour</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">MOT Expiry Date</dt>
+                        <dd class="mt-1 text-lg text-gray-900">@vehicleDetails.MotExpiryDate.ToString("d MMMM yyyy")</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Last MOT Mileage</dt>
+                        <dd class="mt-1 text-lg text-gray-900">@vehicleDetails.MileageAtLastMot.ToString("N0") miles</dd>
+                    </div>
+                </dl>
+            </div>
+        }
     </div>
 </div>
 
 @code {
     private readonly SearchModel searchModel = new();
     private VehicleDetails? vehicleDetails;
+    private string? errorMessage;
     private bool isLoading;
 
     private async Task HandleSearch()
@@ -71,13 +103,14 @@
         try
         {
             isLoading = true;
+            errorMessage = null;
             vehicleDetails = null;
 
             vehicleDetails = await VehicleService.GetVehicleDetailsAsync(searchModel.Registration);
         }
         catch (Exception ex)
         {
-            Console.WriteLine("Unable to retrieve vehicle details. Please try again.");
+            errorMessage = "Unable to retrieve vehicle details. Please try again.";
         }
         finally
         {

@@ -29,7 +29,7 @@ namespace MotChecker.Services
                 Model = "Rio",
                 Colour = "Silver",
                 MotExpiryDate = DateTime.Now.AddMonths(6),
-                MileageAtLastMot = 65420
+                MileageAtLastMot = 97420
             };
         }
     }
