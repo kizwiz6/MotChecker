@@ -28,7 +28,7 @@
         /// <summary>
         /// The date when the current MOT certificate expires
         /// </summary>
-        public DateTime NotExpiryDate { get; set; }
+        public DateTime MotExpiryDate { get; set; }
 
         /// <summary>
         /// The recorded mileage at the most recent MOT test
