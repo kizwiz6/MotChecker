@@ -30,7 +30,10 @@ namespace MotChecker.Services
         public async Task<VehicleDetails> GetVehicleDetailsAsync(string registration)
         {
             // input validation
-            throw new ArgumentException("Registration number cannot be empty", nameof(registration));
+            if (string.IsNullOrWhiteSpace(registration))
+            {
+                throw new ArgumentException("Registration number cannot be empty", nameof(registration));
+            }
 
             // Check cache
             var cacheKey = $"vehicle_{registration.ToUpper()}";
