@@ -1,13 +1,29 @@
 ﻿@namespace MotChecker.Components
 
-<div class="flex justify-center items-center p-4">
-    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+<div class="@Class">
+    <svg class="animate-spin w-full h-full" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <g fill="none" stroke="currentColor" stroke-width="2">
+            <!-- Tire rim -->
+            <circle cx="12" cy="12" r="10" class="stroke-gray-300" />
+
+            <!-- Tread pattern -->
+            <circle cx="12" cy="12" r="10" class="stroke-blue-600"
+                    stroke-dasharray="2,3" stroke-dashoffset="0" />
+
+            <!-- Center hub -->
+            <circle cx="12" cy="12" r="3" />
+
+            <!-- Five spokes -->
+            <line x1="12" y1="5" x2="12" y2="9" />
+            <line x1="17.5" y1="8.5" x2="14.5" y2="10.5" />
+            <line x1="19" y1="15" x2="15" y2="13.5" />
+            <line x1="7" y1="15" x2="11" y2="13.5" />
+            <line x1="6.5" y1="8.5" x2="9.5" y2="10.5" />
+        </g>
+    </svg>
 </div>
 
 @code {
     [Parameter]
-    public string? Size { get; set; } = "8";
-
-    [Parameter]
-    public string? Color { get; set; } = "primary-600";
+    public string Class { get; set; } = "h-8 w-8";
 }

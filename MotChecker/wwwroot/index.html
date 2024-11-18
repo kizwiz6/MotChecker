@@ -11,20 +11,21 @@
         tailwind.config = {
             theme: {
                 extend: {
-                    colors: {
-                        primary: {
-                            50: '#f0f9ff',
-                            100: '#e0f2fe',
-                            500: '#0ea5e9',
-                            600: '#0284c7',
-                            700: '#0369a1'
+                    keyframes: {
+                        'fade-in': {
+                            '0%': { opacity: '0', transform: 'translateY(10px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' }
                         }
+                    },
+                    animation: {
+                        'fade-in': 'fade-in 0.3s ease-out'
                     }
                 }
             }
         }
     </script>
     <style>
+        /* Loading spinner styles */
         .loading-progress {
             position: relative;
             display: block;
@@ -42,30 +43,36 @@
             }
 
                 .loading-progress circle:last-child {
-                    stroke: #0ea5e9;
+                    stroke: #3b82f6;
                     stroke-dasharray: calc(3.141 * var(--blazor-load-percentage, 0%) * 0.8);
                     transition: stroke-dasharray 0.05s ease-in-out;
                 }
 
-        .loading-progress-text {
-            position: absolute;
-            text-align: center;
-            font-weight: bold;
-            inset: calc(20vh + 3.25rem) 0 auto 0.2rem;
-        }
-
-            .loading-progress-text:after {
-                content: var(--blazor-load-percentage-text, "Loading");
-            }
+            @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    .tire-spinner {
+        animation: spin 1s linear infinite;
+    }
     </style>
 </head>
 <body class="bg-gray-50">
     <div id="app">
-        <svg class="loading-progress">
-            <circle r="40%" cx="50%" cy="50%" />
-            <circle r="40%" cx="50%" cy="50%" />
-        </svg>
-        <div class="loading-progress-text"></div>
+        <div class="flex justify-center items-center min-h-screen">
+            <svg class="tire-spinner w-16 h-16" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <g fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10" class="stroke-gray-300" />
+                    <circle cx="12" cy="12" r="10" class="stroke-blue-600" stroke-dasharray="50" stroke-dashoffset="20" />
+                    <circle cx="12" cy="12" r="3" />
+                    <line x1="12" y1="4" x2="12" y2="8" />
+                    <line x1="12" y1="16" x2="12" y2="20" />
+                    <line x1="4" y1="12" x2="8" y2="12" />
+                    <line x1="16" y1="12" x2="20" y2="12" />
+                </g>
+            </svg>
+        </div>
     </div>
     <script src="_framework/blazor.webassembly.js"></script>
 </body>
