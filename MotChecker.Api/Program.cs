@@ -1,25 +1,41 @@
+using MotChecker.Api.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
+// Core services
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// Configure DVSA API proxy
+builder.Services.AddHttpClient<DvsaApiProxy>(client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["DvsaApi:BaseUrl"]!);
+});
+builder.Services.AddScoped<DvsaApiProxy>();
+
+// Configure CORS - Allow Blazor app access
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(builder =>
+        builder.AllowAnyOrigin()
+               .AllowAnyMethod()
+               .AllowAnyHeader());
+});
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Development middleware
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
+// Request pipeline
 app.UseHttpsRedirection();
-
+app.UseCors();
 app.UseAuthorization();
-
 app.MapControllers();
 
 app.Run();

@@ -8,26 +8,72 @@ namespace MotChecker.Api.Services
     {
         private readonly HttpClient _httpClient;
         private readonly IConfiguration _configuration;
+        private readonly HttpClient _tokenClient;
         private string? _accessToken;
+        private readonly ILogger<DvsaApiProxy> _logger;
 
-        public DvsaApiProxy(HttpClient httpClient, IConfiguration configuration)
+        public DvsaApiProxy(HttpClient httpClient, IConfiguration configuration, ILogger<DvsaApiProxy> logger)
         {
             _httpClient = httpClient;
             _configuration = configuration;
+            _tokenClient = new HttpClient();
+            _logger = logger;
         }
 
         public async Task<VehicleDetails> GetVehicleDetailsAsync(string registration)
         {
-            await EnsureAccessTokenAsync();
+            try
+            {
+                await EnsureAccessTokenAsync();
 
-            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _accessToken);
-            _httpClient.DefaultRequestHeaders.Add("x-api-key", _configuration["DvsaApi:ApiKey"]);
+                // Build the request URL properly
+                var baseUrl = "https://history.mot.api.gov.uk/v1/trade/vehicles/registration/";
+                var fullUrl = $"{baseUrl}{registration}";
 
-            var response = await _httpClient.GetAsync($"{_configuration["DvsaApi:BaseUrl"]}trade/vehicles/mot-tests?registration={registration}");
-            response.EnsureSuccessStatusCode();
+                var request = new HttpRequestMessage(HttpMethod.Get, fullUrl);
+                request.Headers.Add("X-API-Key", _configuration["DvsaApi:ApiKey"]);
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _accessToken);
 
-            return await response.Content.ReadFromJsonAsync<VehicleDetails>()
-                ?? throw new InvalidOperationException("Failed to deserialize response");
+                var response = await _httpClient.SendAsync(request);
+                response.EnsureSuccessStatusCode();
+
+                var content = await response.Content.ReadAsStringAsync();
+                _logger.LogInformation("Raw response: {Content}", content);
+
+                // Parse the raw JSON to get the most recent MOT test
+                using var doc = JsonDocument.Parse(content);
+                var root = doc.RootElement;
+
+                var vehicleDetails = new VehicleDetails
+                {
+                    Registration = root.GetProperty("registration").GetString() ?? string.Empty,
+                    Make = root.GetProperty("make").GetString() ?? string.Empty,
+                    Model = root.GetProperty("model").GetString() ?? string.Empty,
+                    Colour = root.GetProperty("primaryColour").GetString() ?? string.Empty,
+                };
+
+                // Get the most recent MOT test
+                if (root.TryGetProperty("motTests", out var motTests) &&
+                    motTests.GetArrayLength() > 0)
+                {
+                    var latestTest = motTests[0];
+                    if (latestTest.TryGetProperty("expiryDate", out var expiryDate))
+                    {
+                        vehicleDetails.MotExpiryDate = DateTime.Parse(expiryDate.GetString()!);
+                    }
+                    if (latestTest.TryGetProperty("odometerValue", out var odometer))
+                    {
+                        vehicleDetails.MileageAtLastMot = int.Parse(odometer.GetString()!);
+                    }
+                }
+
+                return vehicleDetails;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in GetVehicleDetailsAsync");
+                throw;
+            }
         }
 
         private async Task EnsureAccessTokenAsync()
@@ -40,15 +86,11 @@ namespace MotChecker.Api.Services
                 ["scope"] = _configuration["DvsaApi:ScopeUrl"]!
             };
 
-            var tokenRequest = new HttpRequestMessage(HttpMethod.Post, _configuration["DvsaApi:TokenUrl"])
-            {
-                Content = new FormUrlEncodedContent(tokenParams)
-            };
+            var tokenRequest = new FormUrlEncodedContent(tokenParams);
+            var response = await _tokenClient.PostAsync(_configuration["DvsaApi:TokenUrl"], tokenRequest);
+            response.EnsureSuccessStatusCode();
 
-            var tokenResponse = await _httpClient.SendAsync(tokenRequest);
-            tokenResponse.EnsureSuccessStatusCode();
-
-            var tokenData = await tokenResponse.Content.ReadFromJsonAsync<JsonElement>();
+            var tokenData = await response.Content.ReadFromJsonAsync<JsonElement>();
             _accessToken = tokenData.GetProperty("access_token").GetString();
         }
     }
