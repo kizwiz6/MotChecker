@@ -8,8 +8,11 @@ var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
-// Configure HttpClient
-builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://localhost:7030/") });
+// Configure HttpClient to use MotChecker API
+builder.Services.AddScoped(sp => new HttpClient
+{
+    BaseAddress = new Uri("https://localhost:7276/") // API project URL
+});
 
 // Add memory cache
 builder.Services.AddMemoryCache();
@@ -19,7 +22,7 @@ builder.Services.AddMemoryCache();
 // builder.Services.AddScoped<IVehicleService, MockVehicleService>();
 
 // Real service implementation
-builder.Services.AddScoped<IVehicleService, DvsaVehicleService>();
+builder.Services.AddScoped<IVehicleService, VehicleService>();
 
 // Add logging
 builder.Services.AddLogging(logging => logging

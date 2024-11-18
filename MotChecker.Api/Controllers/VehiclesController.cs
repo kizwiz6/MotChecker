@@ -5,7 +5,7 @@ using MotChecker.Models;
 namespace MotChecker.Api.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class VehiclesController : ControllerBase
     {
         private readonly DvsaApiProxy _dvsaApi;

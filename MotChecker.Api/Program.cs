@@ -18,9 +18,11 @@ builder.Services.AddScoped<DvsaApiProxy>();
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(builder =>
-        builder.AllowAnyOrigin()
+    {
+        builder.WithOrigins("https://localhost:7029") // Blazor project URL
                .AllowAnyMethod()
-               .AllowAnyHeader());
+               .AllowAnyHeader();
+    });
 });
 
 var app = builder.Build();

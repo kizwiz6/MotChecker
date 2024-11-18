@@ -24,12 +24,12 @@ public class VehicleService : IVehicleService
     {
         try
         {
-            _logger.LogInformation("Requesting vehicle details for {Registration}", registration);
             var response = await _httpClient.GetAsync($"api/vehicles/{registration}");
+            _logger.LogInformation("Requesting URL: {Url}", _httpClient.BaseAddress + $"api/vehicles/{registration}");
             response.EnsureSuccessStatusCode();
 
-            var details = await response.Content.ReadFromJsonAsync<VehicleDetails>();
-            return details ?? throw new InvalidOperationException("Failed to deserialise vehicle details");
+            return await response.Content.ReadFromJsonAsync<VehicleDetails>()
+                            ?? throw new InvalidOperationException("Failed to deserialise vehicle details");
         }
         catch (Exception ex)
         {
