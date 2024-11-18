@@ -137,7 +137,7 @@
             errorMessage = null;
             vehicleDetails = null;
 
-            vehicleDetails = await VehicleService.GetVehicleDetailsAsync(searchModel.Registration);
+            vehicleDetails = await VehicleService.GetVehicleDetailsAsync(searchModel.CleanRegistration);
         }
         catch (Exception ex)
         {
@@ -152,8 +152,11 @@
     public class SearchModel
     {
         [Required(ErrorMessage = "Please enter a registration number")]
-        [RegularExpression(@"^[A-Z0-9]{1,7}$",
-            ErrorMessage = "Please enter a valid UK registration number")]
+        [RegularExpression(@"^[A-Z0-9 ]{1,14}$", // Allow spaces, max length increased
+               ErrorMessage = "Please enter a valid UK registration number")]
         public string Registration { get; set; } = string.Empty;
+
+        // Clean the registration before sending
+        public string CleanRegistration => Registration.Replace(" ", "").ToUpper();
     }
 }

@@ -24,8 +24,10 @@ public class VehicleService : IVehicleService
     {
         try
         {
+            // Remove all whitespace from registration
+            var cleanRegistration = registration.Replace(" ", "");
+
             var response = await _httpClient.GetAsync($"api/vehicles/{registration}");
-            _logger.LogInformation("Requesting URL: {Url}", _httpClient.BaseAddress + $"api/vehicles/{registration}");
             response.EnsureSuccessStatusCode();
 
             return await response.Content.ReadFromJsonAsync<VehicleDetails>()
