@@ -2,7 +2,6 @@
 @using MotChecker.Components
 @using MotChecker.Services
 @using System.ComponentModel.DataAnnotations
-@inject IVehicleService VehicleService
 
 <PageTitle>MOT History Checker</PageTitle>
 
@@ -113,67 +112,3 @@
         }
     </div>
 </div>
-
-@code {
-    private readonly SearchModel searchModel = new();
-    private VehicleDetails? vehicleDetails;
-    private string? errorMessage;
-    private bool isLoading;
-
-    private void HandleInput(ChangeEventArgs e)
-    {
-        if (e.Value is string value)
-        {
-            searchModel.Registration = value.ToUpper();
-            StateHasChanged();
-        }
-    }
-
-    private async Task HandleSearch()
-    {
-        try
-        {
-            isLoading = true;
-            errorMessage = null;
-            vehicleDetails = null;
-
-            vehicleDetails = await VehicleService.GetVehicleDetailsAsync(searchModel.CleanRegistration);
-        }
-        catch (Exception ex)
-        {
-            errorMessage = "Unable to retrieve vehicle details. Please try again.";
-        }
-        finally
-        {
-            isLoading = false;
-        }
-    }
-
-    /// <summary>
-    /// Model class for vehicle registration search
-    /// </summary>
-    public class SearchModel
-    {
-        private string _registration = string.Empty;
-
-        /// <summary>
-        /// Vehicle registration number, automatically converted to uppercase
-        /// </summary>
-        /// <remarks>
-        /// Allows spaces between characters and validates format
-        /// </remarks>
-        [Required(ErrorMessage = "Please enter a registration number")]
-        [RegularExpression(@"^[A-Z0-9 ]{1,11}$",
-            ErrorMessage = "Please enter a valid UK registration number")]
-        public string Registration
-        {
-            get => _registration;
-            set => _registration = value?.ToUpper() ?? string.Empty;
-        }
-
-        /// <summary>
-        /// Gets the registration with all whitespace removed
-        /// </summary>
-        public string CleanRegistration => Registration.Replace(" ", "");
-    }
-}

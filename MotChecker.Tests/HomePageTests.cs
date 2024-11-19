@@ -1,12 +1,9 @@
 ﻿using Bunit;
-using Xunit;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using MotChecker.Services;
 using MotChecker.Pages;
 using Moq;
-using Microsoft.Extensions.Logging;
-using System.ComponentModel.DataAnnotations;
 using MotChecker.Models;
 
 namespace MotChecker.Tests;
@@ -25,7 +22,7 @@ public class HomePageTests : TestContext
     public void Should_Show_Search_Form_Initially()
     {
         // Arrange & Act
-        var cut = RenderComponent<Home>();
+        var cut = RenderComponent<MotChecker.Pages.Home>();
 
         // Assert
         cut.Find("input#registration").Should().NotBeNull();
