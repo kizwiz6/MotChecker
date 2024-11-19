@@ -1,4 +1,6 @@
-﻿using MotChecker.Models;
+﻿using Microsoft.Extensions.Options;
+using MotChecker.Api.Options;
+using MotChecker.Models;
 using System.Net.Http.Headers;
 using System.Text.Json;
 
@@ -7,17 +9,20 @@ namespace MotChecker.Api.Services
     public class DvsaApiProxy
     {
         private readonly HttpClient _httpClient;
-        private readonly IConfiguration _configuration;
+        private readonly DvsaApiOptions _options;
+        private readonly ILogger<DvsaApiProxy> _logger;
         private readonly HttpClient _tokenClient;
         private string? _accessToken;
-        private readonly ILogger<DvsaApiProxy> _logger;
 
-        public DvsaApiProxy(HttpClient httpClient, IConfiguration configuration, ILogger<DvsaApiProxy> logger)
+        public DvsaApiProxy(
+            HttpClient httpClient,
+            IOptions<DvsaApiOptions> options,
+            ILogger<DvsaApiProxy> logger)
         {
             _httpClient = httpClient;
-            _configuration = configuration;
-            _tokenClient = new HttpClient();
+            _options = options.Value;
             _logger = logger;
+            _tokenClient = new HttpClient();
         }
 
         public async Task<VehicleDetails> GetVehicleDetailsAsync(string registration)
@@ -31,7 +36,7 @@ namespace MotChecker.Api.Services
                 var fullUrl = $"{baseUrl}{registration}";
 
                 var request = new HttpRequestMessage(HttpMethod.Get, fullUrl);
-                request.Headers.Add("X-API-Key", _configuration["DvsaApi:ApiKey"]);
+                request.Headers.Add("X-API-Key", _options.ApiKey);
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _accessToken);
 
                 var response = await _httpClient.SendAsync(request);
@@ -81,13 +86,13 @@ namespace MotChecker.Api.Services
             var tokenParams = new Dictionary<string, string>
             {
                 ["grant_type"] = "client_credentials",
-                ["client_id"] = _configuration["DvsaApi:ClientId"]!,
-                ["client_secret"] = _configuration["DvsaApi:ClientSecret"]!,
-                ["scope"] = _configuration["DvsaApi:ScopeUrl"]!
+                ["client_id"] = _options.ClientId,
+                ["client_secret"] = _options.ClientSecret,
+                ["scope"] = _options.ScopeUrl
             };
 
             var tokenRequest = new FormUrlEncodedContent(tokenParams);
-            var response = await _tokenClient.PostAsync(_configuration["DvsaApi:TokenUrl"], tokenRequest);
+            var response = await _tokenClient.PostAsync(_options.TokenUrl, tokenRequest);
             response.EnsureSuccessStatusCode();
 
             var tokenData = await response.Content.ReadFromJsonAsync<JsonElement>();

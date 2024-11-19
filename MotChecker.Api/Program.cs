@@ -1,42 +1,47 @@
+using Microsoft.Extensions.Options;
+using MotChecker.Api.Middleware;
+using MotChecker.Api.Options;
 using MotChecker.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Core services
+// Development-only configuration
+if (builder.Environment.IsDevelopment())
+{
+    builder.Configuration.AddUserSecrets<Program>();
+}
+
+// Bind and validate DVSA API options
+builder.Services.AddOptions<DvsaApiOptions>()
+    .Bind(builder.Configuration.GetSection(DvsaApiOptions.SectionName))
+    .ValidateDataAnnotations()
+    .ValidateOnStart();
+
+// Register DvsaApiProxy with options
+builder.Services.AddHttpClient<DvsaApiProxy>((serviceProvider, client) =>
+{
+    var options = serviceProvider.GetRequiredService<IOptions<DvsaApiOptions>>().Value;
+    client.BaseAddress = new Uri(options.BaseUrl);
+});
+
+// Add other services
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Configure DVSA API proxy
-builder.Services.AddHttpClient<DvsaApiProxy>(client =>
-{
-    client.BaseAddress = new Uri(builder.Configuration["DvsaApi:BaseUrl"]!);
-});
-builder.Services.AddScoped<DvsaApiProxy>();
-
-// Configure CORS - Allow Blazor app access
-builder.Services.AddCors(options =>
-{
-    options.AddDefaultPolicy(builder =>
-    {
-        builder.WithOrigins("https://localhost:7029") // Blazor project URL
-               .AllowAnyMethod()
-               .AllowAnyHeader();
-    });
-});
-
 var app = builder.Build();
 
-// Development middleware
+// Add error handling middleware early in the pipeline
+app.UseMiddleware<ErrorHandlingMiddleware>();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-// Request pipeline
 app.UseHttpsRedirection();
-app.UseCors();
+app.UseCors("BlazorApp");
 app.UseAuthorization();
 app.MapControllers();
 

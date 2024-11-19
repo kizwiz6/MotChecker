@@ -3,10 +3,9 @@ using Xunit;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using MotChecker.Services;
-using MotChecker.Pages;
 using Moq;
-using Microsoft.Extensions.Logging;
 using System.ComponentModel.DataAnnotations;
+using MotChecker.Pages;
 using MotChecker.Models;
 
 namespace MotChecker.Tests;
@@ -14,15 +13,11 @@ namespace MotChecker.Tests;
 public class HomePageTests : TestContext
 {
     private readonly Mock<IVehicleService> _vehicleServiceMock;
-    private readonly Mock<ILogger<Home>> _loggerMock;
 
     public HomePageTests()
     {
         _vehicleServiceMock = new Mock<IVehicleService>();
-        _loggerMock = new Mock<ILogger<Home>>();
-
         Services.AddScoped<IVehicleService>(_ => _vehicleServiceMock.Object);
-        Services.AddScoped<ILogger<Home>>(_ => _loggerMock.Object);
     }
 
     [Fact]
