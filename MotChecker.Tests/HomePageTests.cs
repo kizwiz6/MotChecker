@@ -14,15 +14,11 @@ namespace MotChecker.Tests;
 public class HomePageTests : TestContext
 {
     private readonly Mock<IVehicleService> _vehicleServiceMock;
-    private readonly Mock<ILogger<Home>> _loggerMock;
 
     public HomePageTests()
     {
         _vehicleServiceMock = new Mock<IVehicleService>();
-        _loggerMock = new Mock<ILogger<Home>>();
-
         Services.AddScoped<IVehicleService>(_ => _vehicleServiceMock.Object);
-        Services.AddScoped<ILogger<Home>>(_ => _loggerMock.Object);
     }
 
     [Fact]
@@ -123,16 +119,17 @@ public class HomePageTests : TestContext
         var form = cut.Find("form");
         var input = cut.Find("input#registration");
         input.Change("LB11WXA");
+        var submitTask = form.SubmitAsync();
 
-        // Start the search but don't await it
-        var searchTask = form.SubmitAsync();
-
-        // Assert - Check loading state
-        cut.WaitForState(() => cut.Find("button[type='submit']").TextContent.Contains("Searching"));
+        // Assert
+        var button = cut.Find("button[type='submit']");
+        button.ClassList.Should().Contain("opacity-50");
+        button.ClassList.Should().Contain("cursor-not-allowed");
+        button.TextContent.Should().Contain("Searching");
 
         // Complete the search
         tcs.SetResult(new VehicleDetails());
-        await searchTask;
+        await submitTask;
     }
 
     [Fact]
@@ -143,16 +140,18 @@ public class HomePageTests : TestContext
         var input = cut.Find("input#registration");
 
         // Act
-        input.Input("LB11WXA");
+        // Trigger both Change and Input events
+        var registration = "lb11wxa";
+        input.Change(registration);
+        input.Input(registration);
 
-        // Assert - Check the input value is uppercase
+        // Assert
         input.GetAttribute("value").Should().Be("LB11WXA");
 
-        // Additional check - verify the form submission uses uppercase
+        // Submit and verify
         var form = cut.Find("form");
         form.Submit();
 
-        // Verify the service was called with uppercase registration
         _vehicleServiceMock.Verify(x =>
             x.GetVehicleDetailsAsync(It.Is<string>(s => s == "LB11WXA")),
             Times.Once);

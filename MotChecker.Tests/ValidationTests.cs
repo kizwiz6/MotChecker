@@ -8,13 +8,15 @@ namespace MotChecker.Tests
     public class ValidationTests
     {
         [Theory]
-        [InlineData("AB12CDE", true)]  // Valid format
-        [InlineData("AB12", true)]     // Valid shorter format
-        [InlineData("1234ABC", true)]  // Valid numeric start
-        [InlineData("", false)]        // Empty string
-        [InlineData("AB12CDEFG", false)] // Too long
-        [InlineData("AB!2CDE", false)]   // Invalid character
-        [InlineData("  ", false)]        // Whitespace
+        [InlineData("AB12CDE", true)]        // Valid format
+        [InlineData("AB12", true)]           // Valid shorter format
+        [InlineData("1234ABC", true)]        // Valid numeric start
+        [InlineData("AB 12 CDE", true)]      // Valid with spaces
+        [InlineData("LB 11 WXA", true)]      // Valid with spaces
+        [InlineData("", false)]              // Empty string
+        [InlineData("AB12CDEFGHIJK", false)] // Too long (>14 chars)
+        [InlineData("AB!2CDE", false)]       // Invalid character
+        [InlineData("  ", false)]            // Only whitespace
         public void Registration_Validation_Should_Work_As_Expected(string registration, bool shouldBeValid)
         {
             // Arrange
@@ -27,7 +29,6 @@ namespace MotChecker.Tests
 
             // Assert
             isValid.Should().Be(shouldBeValid);
-
         }
     }
 }

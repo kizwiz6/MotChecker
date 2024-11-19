@@ -1,0 +1,6 @@
+@MotChecker.Api_HostAddress = http://localhost:5118
+
+GET {{MotChecker.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
