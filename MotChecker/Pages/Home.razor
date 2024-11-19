@@ -163,7 +163,7 @@
         /// Allows spaces between characters and validates format
         /// </remarks>
         [Required(ErrorMessage = "Please enter a registration number")]
-        [RegularExpression(@"^[A-Z0-9 ]{1,14}$",
+        [RegularExpression(@"^[A-Z0-9 ]{1,11}$",
             ErrorMessage = "Please enter a valid UK registration number")]
         public string Registration
         {
