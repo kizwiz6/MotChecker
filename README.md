@@ -2,12 +2,14 @@
 
 A web application built with Blazor WebAssembly and ASP.NET Core API to check vehicle MOT history using the DVSA API.
 
+![MOT History Checker Homepage](.github/images/HomePage.PNG)
+
 ## Features
 
 - Check MOT status by vehicle registration
 - Display vehicle details including:
   - Make and model
-  - Color
+  - Colour
   - MOT expiry date
   - Last recorded mileage
 - Real-time validation
@@ -34,34 +36,6 @@ A web application built with Blazor WebAssembly and ASP.NET Core API to check ve
   - Client ID
   - Client Secret
   - API Key
-
-## Setup
-
-1. Clone the repository:
-```bash
-git clone https://github.com/yourusername/MotChecker.git
-```
-
-2. Configure DVSA API credentials:
-   - Create a `secrets.json` file in the API project
-   - Add your DVSA API credentials:
-```json
-{
-  "DvsaApi": {
-    "ClientId": "your-client-id",
-    "ClientSecret": "your-client-secret",
-    "ApiKey": "your-api-key",
-    "ScopeUrl": "https://tapi.dvsa.gov.uk/.default",
-    "TokenUrl": "https://login.microsoftonline.com/{tenant-id}/oauth2/v2.0/token",
-    "BaseUrl": "https://beta.check-mot.service.gov.uk/"
-  }
-}
-```
-
-3. Run the projects:
-   - Start both the API and Blazor projects
-   - API runs on `https://localhost:7276`
-   - Blazor app runs on `https://localhost:7029`
 
 ## Project Structure
 
