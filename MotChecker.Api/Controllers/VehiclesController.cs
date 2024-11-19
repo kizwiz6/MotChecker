@@ -16,15 +16,17 @@ namespace MotChecker.Api.Controllers
         }
 
         [HttpGet("{registration}")]
+        [Produces("application/json")]
         public async Task<ActionResult<VehicleDetails>> Get(string registration)
         {
             try
             {
-                return await _dvsaApi.GetVehicleDetailsAsync(registration);
+                var result = await _dvsaApi.GetVehicleDetailsAsync(registration);
+                return Ok(result);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ex.Message);
+                 return StatusCode(500, new { error = ex.Message });
             }
         }
     }

@@ -1,6 +1,6 @@
 ﻿using MotChecker.Models;
 using MotChecker.Services;
-
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 
 /// <summary>
@@ -24,8 +24,16 @@ public class VehicleService : IVehicleService
     {
         try
         {
-            var response = await _httpClient.GetAsync($"api/vehicles/{registration}");
-            _logger.LogInformation("Requesting URL: {Url}", _httpClient.BaseAddress + $"api/vehicles/{registration}");
+            // Add Accept header
+            var request = new HttpRequestMessage(HttpMethod.Get,
+                $"api/vehicles/{registration}");
+            request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+            var response = await _httpClient.SendAsync(request);
+
+            // Log response
+            var content = await response.Content.ReadAsStringAsync();
+
             response.EnsureSuccessStatusCode();
 
             return await response.Content.ReadFromJsonAsync<VehicleDetails>()

@@ -7,14 +7,6 @@
 <PageTitle>MOT History Checker</PageTitle>
 
 <div class="min-h-screen bg-gradient-to-b from-blue-600 to-blue-900 relative overflow-hidden">
-    <!-- Background car images -->
-    <div class="absolute right-0 top-0 w-1/3 opacity-10 transform translate-x-1/4 -translate-y-1/4">
-        <img src="images/car-top.png" alt="" class="w-full" />
-    </div>
-    <div class="absolute left-0 bottom-0 w-1/3 opacity-10 transform -translate-x-1/4 translate-y-1/4">
-        <img src="images/car-top.png" alt="" class="w-full" />
-    </div>
-
     <div class="container mx-auto px-4 py-12 relative z-10">
         <!-- Header -->
         <div class="text-center mb-12">
@@ -33,19 +25,17 @@
                         <div class="bg-blue-900 text-white px-4 py-3 rounded-l font-bold">
                             GB
                         </div>
-                        <InputText id="registration"
+                        <InputText id="registration" 
                                    @bind-Value="searchModel.Registration"
+                                   @oninput="@(e => HandleInput(e))"
                                    class="flex-1 p-3 text-2xl font-bold text-center uppercase focus:outline-none"
                                    placeholder="ENTER REG" />
                         <button type="submit"
                                 disabled="@isLoading"
-                                class="bg-blue-600 text-white px-8 py-3 rounded-r font-medium
-                                       hover:bg-blue-700 transition-colors duration-200
-                                       disabled:bg-blue-400 disabled:cursor-not-allowed
-                                       flex items-center">
+                                class="@(isLoading ? "opacity-50 cursor-not-allowed" : "") bg-blue-600 text-white px-8 py-3 rounded-r font-medium hover:bg-blue-700 transition-colors duration-200">
                             @if (isLoading)
                             {
-                                <div class="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+                                <span>Searching...</span>
                             }
                             else
                             {
@@ -55,23 +45,26 @@
                     </div>
                 </div>
 
-                @if (!string.IsNullOrEmpty(errorMessage))
-                {
-                    <div class="mt-4 bg-red-50 border-l-4 border-red-500 p-4 rounded animate-fade-in" role="alert">
-                        <div class="flex">
-                            <div class="flex-shrink-0">
-                                <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
-                                </svg>
-                            </div>
-                            <div class="ml-3">
-                                <p class="text-sm text-red-700">@errorMessage</p>
-                            </div>
-                        </div>
-                    </div>
-                }
+                <ValidationMessage For="@(() => searchModel.Registration)" class="text-red-500 mt-2" />
             </EditForm>
         </div>
+
+        <!-- Error Message -->
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="mt-4 bg-red-50 border-l-4 border-red-500 p-4 rounded animate-fade-in" role="alert">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-red-700">@errorMessage</p>
+                    </div>
+                </div>
+            </div>
+        }
 
         <!-- Results -->
         @if (vehicleDetails is not null)
@@ -119,8 +112,6 @@
             </div>
         }
     </div>
-
-
 </div>
 
 @code {
@@ -128,6 +119,15 @@
     private VehicleDetails? vehicleDetails;
     private string? errorMessage;
     private bool isLoading;
+
+    private void HandleInput(ChangeEventArgs e)
+    {
+        if (e.Value is string value)
+        {
+            searchModel.Registration = value.ToUpper();
+            StateHasChanged();
+        }
+    }
 
     private async Task HandleSearch()
     {

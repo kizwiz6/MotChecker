@@ -19,9 +19,11 @@ builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(builder =>
     {
-        builder.WithOrigins("https://localhost:7029") // Blazor project URL
-               .AllowAnyMethod()
-               .AllowAnyHeader();
+        builder
+            .WithOrigins("https://localhost:7029") // Blazor app URL
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .WithExposedHeaders("*");
     });
 });
 
