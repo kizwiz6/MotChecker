@@ -3,7 +3,6 @@ using Moq;
 using FluentAssertions;
 using MotChecker.Services;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Caching.Memory;
 
 namespace MotChecker.Tests
 {
