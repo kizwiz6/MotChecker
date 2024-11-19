@@ -11,6 +11,11 @@ public class VehicleService : IVehicleService
     private readonly HttpClient _httpClient;
     private readonly ILogger<VehicleService> _logger;
 
+    /// <summary>
+    /// Initialises a new instance of the VehicleService
+    /// </summary>
+    /// <param name="httpClient">HTTP client for API calls</param>
+    /// <param name="logger">Logger instance</param>
     public VehicleService(HttpClient httpClient, ILogger<VehicleService> logger)
     {
         _httpClient = httpClient;
@@ -18,20 +23,23 @@ public class VehicleService : IVehicleService
     }
 
     /// <summary>
-    /// Retrieves vehicle details from the API
+    /// Retrieves vehicle details from the API, handling registration cleaning
     /// </summary>
+    /// <param name="registration">Vehicle registration number (spaces allowed)</param>
+    /// <returns>Vehicle details if found</returns>
+    /// <exception cref="InvalidOperationException">Thrown when response deserialisation fails</exception>
     public async Task<VehicleDetails> GetVehicleDetailsAsync(string registration)
     {
         try
         {
-            // Add Accept header
+            // Clean the registration by removing spaces and converting to uppercase
+            var cleanRegistration = registration.Replace(" ", "").ToUpper();
+
             var request = new HttpRequestMessage(HttpMethod.Get,
-                $"api/vehicles/{registration}");
+                $"api/vehicles/{cleanRegistration}");
             request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
             var response = await _httpClient.SendAsync(request);
-
-            // Log response
             var content = await response.Content.ReadAsStringAsync();
 
             response.EnsureSuccessStatusCode();
