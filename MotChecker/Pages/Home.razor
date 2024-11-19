@@ -137,7 +137,7 @@
             errorMessage = null;
             vehicleDetails = null;
 
-            vehicleDetails = await VehicleService.GetVehicleDetailsAsync(searchModel.Registration);
+            vehicleDetails = await VehicleService.GetVehicleDetailsAsync(searchModel.CleanRegistration);
         }
         catch (Exception ex)
         {
@@ -149,11 +149,31 @@
         }
     }
 
+    /// <summary>
+    /// Model class for vehicle registration search
+    /// </summary>
     public class SearchModel
     {
+        private string _registration = string.Empty;
+
+        /// <summary>
+        /// Vehicle registration number, automatically converted to uppercase
+        /// </summary>
+        /// <remarks>
+        /// Allows spaces between characters and validates format
+        /// </remarks>
         [Required(ErrorMessage = "Please enter a registration number")]
-        [RegularExpression(@"^[A-Z0-9]{1,7}$",
+        [RegularExpression(@"^[A-Z0-9 ]{1,14}$",
             ErrorMessage = "Please enter a valid UK registration number")]
-        public string Registration { get; set; } = string.Empty;
+        public string Registration
+        {
+            get => _registration;
+            set => _registration = value?.ToUpper() ?? string.Empty;
+        }
+
+        /// <summary>
+        /// Gets the registration with all whitespace removed
+        /// </summary>
+        public string CleanRegistration => Registration.Replace(" ", "");
     }
 }
