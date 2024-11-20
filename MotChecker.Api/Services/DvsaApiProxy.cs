@@ -4,6 +4,10 @@ using System.Text.Json;
 
 namespace MotChecker.Api.Services
 {
+    /// <summary>
+    /// Proxy service for interacting with the DVSA API
+    /// Handles authentication, requests, and response parsing
+    /// </summary>
     public class DvsaApiProxy
     {
         private readonly HttpClient _httpClient;
@@ -12,6 +16,14 @@ namespace MotChecker.Api.Services
         private string? _accessToken;
         private readonly ILogger<DvsaApiProxy> _logger;
 
+        /// <summary>
+        /// Initialises a new instance of the DvsaApiProxy
+        /// </summary>
+        /// <param name="httpClient">HTTP client for API requests</param>
+        /// <param name="configuration">Application configuration</param>
+        /// <param name="logger">Logger instance</param>
+        /// <exception cref="ArgumentNullException">Thrown when required dependencies are null</exception>
+        /// <exception cref="ArgumentException">Thrown when API key is not configured</exception>
         public DvsaApiProxy(HttpClient httpClient, IConfiguration configuration, ILogger<DvsaApiProxy> logger)
         {
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
@@ -27,6 +39,13 @@ namespace MotChecker.Api.Services
             }
         }
 
+        /// <summary>
+        /// Retrieves vehicle details from the DVSA API
+        /// </summary>
+        /// <param name="registration">Vehicle registration number</param>
+        /// <returns>Vehicle details if found</returns>
+        /// <exception cref="ArgumentException">Thrown when registration is invalid</exception>
+        /// <exception cref="InvalidOperationException">Thrown when response parsing fails</exception>
         public async Task<VehicleDetails> GetVehicleDetailsAsync(string registration)
         {
             if (string.IsNullOrWhiteSpace(registration))
@@ -88,6 +107,12 @@ namespace MotChecker.Api.Services
             }
         }
 
+        /// <summary>
+        /// Ensures a valid access token is available for API requests
+        /// Handles token acquisition and caching
+        /// </summary>
+        /// <returns>Task representing the token acquisition process</returns>
+        /// <exception cref="HttpRequestException">Thrown when token request fails</exception>
         private async Task EnsureAccessTokenAsync()
         {
             if (!string.IsNullOrEmpty(_accessToken))
