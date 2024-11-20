@@ -66,7 +66,7 @@ public class DvsaApiProxyTests
     public async Task GetVehicleDetailsAsync_WithValidRegistration_ReturnsVehicleDetails()
     {
         // Arrange
-        const string registration = "AB12CDE";
+        const string registration = "KW64JYJ";
 
         // Setup both token and vehicle response
         _handlerMock.Protected()
@@ -90,9 +90,9 @@ public class DvsaApiProxyTests
                     JsonSerializer.Serialize(new
                     {
                         registration = registration,
-                        make = "TOYOTA",
-                        model = "COROLLA",
-                        primaryColour = "SILVER",
+                        make = "SUZUKI",
+                        model = "SWIFT",
+                        primaryColour = "BLUE",
                         motTests = new[]
                         {
                             new { expiryDate = "2024-01-01", odometerValue = "50000" }
@@ -108,8 +108,8 @@ public class DvsaApiProxyTests
         // Assert
         result.Should().NotBeNull();
         result.Registration.Should().Be(registration);
-        result.Make.Should().Be("TOYOTA");
-        result.Model.Should().Be("COROLLA");
+        result.Make.Should().Be("SUZUKI");
+        result.Model.Should().Be("SWIFT");
 
         // Verify the mock was called
         _handlerMock.Protected().Verify(
