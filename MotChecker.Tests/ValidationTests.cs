@@ -5,8 +5,16 @@ using static MotChecker.Pages.Home;
 
 namespace MotChecker.Tests
 {
+    /// <summary>
+    /// Tests for registration number validation
+    /// </summary>
     public class ValidationTests
     {
+        /// <summary>
+        /// Tests various registration number formats for validity
+        /// </summary>
+        /// <param name="registration">Registration number to test</param>
+        /// <param name="shouldBeValid">Expected validation result</param>
         [Theory]
         [InlineData("AB12CDE", true)]        // Valid format
         [InlineData("AB12", true)]           // Valid shorter format
