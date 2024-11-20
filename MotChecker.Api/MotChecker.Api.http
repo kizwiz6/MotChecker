@@ -1,6 +1,33 @@
-@MotChecker.Api_HostAddress = http://localhost:5118
+@baseUrl = https://localhost:7276
 
-GET {{MotChecker.Api_HostAddress}}/weatherforecast/
+### Get Vehicle Details
+GET {{baseUrl}}/api/vehicles/LB11WXA
 Accept: application/json
 
-###
+### Get Vehicle Details (with spaces)
+GET {{baseUrl}}/api/vehicles/LB11%20WXA
+Accept: application/json
+
+### Get Vehicle Details (invalid)
+GET {{baseUrl}}/api/vehicles/INVALID
+Accept: application/json
+
+### Get Vehicle Details (empty)
+GET {{baseUrl}}/api/vehicles/
+Accept: application/json
+
+### Response Examples
+# Success Response:
+# {
+#   "registration": "LB11WXA",
+#   "make": "KIA",
+#   "model": "RIO",
+#   "colour": "SILVER",
+#   "motExpiryDate": "2024-01-01T00:00:00",
+#   "mileageAtLastMot": 97000
+# }
+#
+# Error Response:
+# {
+#   "error": "Registration cannot be empty or whitespace."
+# }
