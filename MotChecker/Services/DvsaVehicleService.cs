@@ -9,6 +9,10 @@ using MotChecker.Models;
 
 namespace MotChecker.Services
 {
+    /// <summary>
+    /// Service for retrieving vehicle details from the DVSA API with caching support
+    /// Implements the Repository pattern with caching decorator
+    /// </summary>
     public class DvsaVehicleService : IVehicleService
     {
         private readonly HttpClient _httpClient;
@@ -17,6 +21,13 @@ namespace MotChecker.Services
         private readonly ILogger<DvsaVehicleService> _logger;
         private string? _accessToken;
 
+        /// <summary>
+        /// Initialises a new instance of the DvsaVehicleService
+        /// </summary>
+        /// <param name="httpClient">HTTP client for API communication</param>
+        /// <param name="configuration">Application configuration</param>
+        /// <param name="cache">Memory cache for storing vehicle details</param>
+        /// <param name="logger">Logger instance</param>
         public DvsaVehicleService(
             HttpClient httpClient,
             IConfiguration configuration,
@@ -30,6 +41,17 @@ namespace MotChecker.Services
             _logger = logger;
         }
 
+        /// <summary>
+        /// Retrieves vehicle details by registration number with caching
+        /// </summary>
+        /// <param name="registration">Vehicle registration number</param>
+        /// <returns>Vehicle details if found</returns>
+        /// <remarks>
+        /// Implements a caching strategy with 30-minute expiration
+        /// Handles token management and API authentication
+        /// </remarks>
+        /// <exception cref="ArgumentException">Thrown when registration is invalid</exception>
+        /// <exception cref="InvalidOperationException">Thrown when deserialisation fails</exception>
         public async Task<VehicleDetails> GetVehicleDetailsAsync(string registration)
         {
             if (string.IsNullOrWhiteSpace(registration))
@@ -37,13 +59,19 @@ namespace MotChecker.Services
                 throw new ArgumentException("Registration cannot be empty", nameof(registration));
             }
 
+            // Check cache first
             var cacheKey = $"vehicle_{registration.ToUpper()}";
             if (_cache.TryGetValue(cacheKey, out VehicleDetails? cachedDetails))
             {
+                _logger.LogInformation("Cache hit for registration {Registration}", registration);
                 return cachedDetails!;
             }
 
+            // Cache miss - fetch from API
+            _logger.LogInformation("Cache miss for registration {Registration}", registration);
             await EnsureAccessTokenAsync();
+
+            // Set up API request headers
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _accessToken);
             _httpClient.DefaultRequestHeaders.Add("x-api-key", _configuration["DvsaApi:ApiKey"]);
 
@@ -56,10 +84,18 @@ namespace MotChecker.Services
                 throw new InvalidOperationException("Failed to deserialise vehicle details");
             }
 
+            // Cache the results
             _cache.Set(cacheKey, details, TimeSpan.FromMinutes(30));
             return details;
         }
 
+        /// <summary>
+        /// Ensures a valid access token is available for API requests
+        /// </summary>
+        /// <remarks>
+        /// Implements token caching to avoid unnecessary token requests
+        /// Uses OAuth client credentials flow
+        /// </remarks>
         private async Task EnsureAccessTokenAsync()
         {
             if (!string.IsNullOrEmpty(_accessToken))
@@ -67,6 +103,7 @@ namespace MotChecker.Services
                 return;
             }
 
+            // Prepare token request parameters
             var tokenParams = new Dictionary<string, string>
             {
                 ["grant_type"] = "client_credentials",

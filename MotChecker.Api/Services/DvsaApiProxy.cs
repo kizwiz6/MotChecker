@@ -14,14 +14,26 @@ namespace MotChecker.Api.Services
 
         public DvsaApiProxy(HttpClient httpClient, IConfiguration configuration, ILogger<DvsaApiProxy> logger)
         {
-            _httpClient = httpClient;
-            _configuration = configuration;
+            _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+            _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
             _tokenClient = new HttpClient();
-            _logger = logger;
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+
+            var apiKey = configuration.GetSection("DvsaApi:ApiKey").Value;
+
+            if (string.IsNullOrEmpty(apiKey))
+            {
+                throw new ArgumentException("DvsaApi:ApiKey configuration is required");
+            }
         }
 
         public async Task<VehicleDetails> GetVehicleDetailsAsync(string registration)
         {
+            if (string.IsNullOrWhiteSpace(registration))
+            {
+                throw new ArgumentException("Registration cannot be empty or whitespace.", nameof(registration));
+            }
+
             try
             {
                 await EnsureAccessTokenAsync();
@@ -78,6 +90,12 @@ namespace MotChecker.Api.Services
 
         private async Task EnsureAccessTokenAsync()
         {
+            if (!string.IsNullOrEmpty(_accessToken))
+            {
+                return;
+            }
+
+            var tokenUrl = _configuration["DvsaApi:TokenUrl"];
             var tokenParams = new Dictionary<string, string>
             {
                 ["grant_type"] = "client_credentials",
@@ -86,8 +104,12 @@ namespace MotChecker.Api.Services
                 ["scope"] = _configuration["DvsaApi:ScopeUrl"]!
             };
 
-            var tokenRequest = new FormUrlEncodedContent(tokenParams);
-            var response = await _tokenClient.PostAsync(_configuration["DvsaApi:TokenUrl"], tokenRequest);
+            var tokenRequest = new HttpRequestMessage(HttpMethod.Post, tokenUrl)
+            {
+                Content = new FormUrlEncodedContent(tokenParams)
+            };
+
+            var response = await _httpClient.SendAsync(tokenRequest);
             response.EnsureSuccessStatusCode();
 
             var tokenData = await response.Content.ReadFromJsonAsync<JsonElement>();
