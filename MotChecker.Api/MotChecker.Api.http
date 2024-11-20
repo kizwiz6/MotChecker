@@ -13,7 +13,7 @@ GET {{baseUrl}}/api/vehicles/INVALID
 Accept: application/json
 
 ### Get Vehicle Details (empty)
-GET {{baseUrl}}/api/vehicles/
+GET {{baseUrl}}/api/vehicles
 Accept: application/json
 
 ### Response Examples
@@ -27,7 +27,3 @@ Accept: application/json
 #   "mileageAtLastMot": 97000
 # }
 #
-# Error Response:
-# {
-#   "error": "Registration cannot be empty or whitespace."
-# }
