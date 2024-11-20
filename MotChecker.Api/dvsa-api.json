@@ -1,0 +1,86 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "DVSA MOT History API",
+    "description": "API for retrieving MOT history information",
+    "version": "v1"
+  },
+  "servers": [
+    {
+      "url": "https://history.mot.api.gov.uk/v1"
+    }
+  ],
+  "paths": {
+    "/trade/vehicles/registration/{registration}": {
+      "get": {
+        "summary": "Get vehicle MOT history",
+        "parameters": [
+          {
+            "name": "registration",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-API-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VehicleDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "VehicleDetails": {
+        "type": "object",
+        "properties": {
+          "registration": {
+            "type": "string"
+          },
+          "make": {
+            "type": "string"
+          },
+          "model": {
+            "type": "string"
+          },
+          "primaryColour": {
+            "type": "string"
+          },
+          "motTests": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "expiryDate": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "odometerValue": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
