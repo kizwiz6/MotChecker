@@ -31,6 +31,7 @@ namespace MotChecker.Api.Services
             _tokenClient = new HttpClient();
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
+            // Ensures the API key is present
             var apiKey = configuration.GetSection("DvsaApi:ApiKey").Value;
 
             if (string.IsNullOrEmpty(apiKey))

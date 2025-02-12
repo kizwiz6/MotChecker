@@ -4,7 +4,6 @@ using MotChecker.Models;
 
 namespace MotChecker.Api.Controllers
 {
-    // VehiclesController.cs
     /// <summary>
     /// API Controller for handling vehicle information requests
     /// </summary>

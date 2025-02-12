@@ -1,10 +1,7 @@
 ﻿using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using System.Text;
 using System.Text.Json;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 using MotChecker.Models;
 
 namespace MotChecker.Services
@@ -54,6 +51,7 @@ namespace MotChecker.Services
         /// <exception cref="InvalidOperationException">Thrown when deserialisation fails</exception>
         public async Task<VehicleDetails> GetVehicleDetailsAsync(string registration)
         {
+            // Input validation
             if (string.IsNullOrWhiteSpace(registration))
             {
                 throw new ArgumentException("Registration cannot be empty", nameof(registration));
@@ -75,9 +73,11 @@ namespace MotChecker.Services
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _accessToken);
             _httpClient.DefaultRequestHeaders.Add("x-api-key", _configuration["DvsaApi:ApiKey"]);
 
+            // Sends a GET request to DVSA API endpoint
             var response = await _httpClient.GetAsync($"trade/vehicles/mot-tests?registration={registration}");
             response.EnsureSuccessStatusCode();
 
+            // Deserialise Response
             var details = await response.Content.ReadFromJsonAsync<VehicleDetails>();
             if (details == null)
             {
@@ -117,9 +117,11 @@ namespace MotChecker.Services
                 Content = new FormUrlEncodedContent(tokenParams)
             };
 
+            // Send token request
             var tokenResponse = await _httpClient.SendAsync(tokenRequest);
             tokenResponse.EnsureSuccessStatusCode();
 
+            // Deserialise token
             var tokenData = await tokenResponse.Content.ReadFromJsonAsync<JsonElement>();
             _accessToken = tokenData.GetProperty("access_token").GetString();
         }

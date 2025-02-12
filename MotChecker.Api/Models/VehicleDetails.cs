@@ -30,11 +30,11 @@ namespace MotChecker.Api.Models
         /// </summary>
         [JsonPropertyName("primaryColour")]
         public string Colour { get; set; } = string.Empty;
-        [JsonPropertyName("expiryDate")]
 
         /// <summary>
         /// The expiry date of the current MOT certificate
         /// </summary>
+        [JsonPropertyName("expiryDate")]
         public DateTime MotExpiryDate { get; set; }
 
         /// <summary>

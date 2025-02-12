@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
-using Microsoft.Extensions.Caching.Memory;
 using MotChecker;
 using MotChecker.Services;
 using System.Net.Http.Headers;

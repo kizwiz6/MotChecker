@@ -35,15 +35,19 @@ public class VehicleService : IVehicleService
             // Clean the registration by removing spaces and converting to uppercase
             var cleanRegistration = registration.Replace(" ", "").ToUpper();
 
+            // Create HTTP request
             var request = new HttpRequestMessage(HttpMethod.Get,
                 $"api/vehicles/{cleanRegistration}");
             request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
+            // Send the request
             var response = await _httpClient.SendAsync(request);
             var content = await response.Content.ReadAsStringAsync();
 
+            // Check for errors
             response.EnsureSuccessStatusCode();
 
+            // Deserialise the response
             return await response.Content.ReadFromJsonAsync<VehicleDetails>()
                             ?? throw new InvalidOperationException("Failed to deserialise vehicle details");
         }
