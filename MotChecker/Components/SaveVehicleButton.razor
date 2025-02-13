@@ -1,0 +1,44 @@
+﻿@inject IVehicleFavouritesService FavouritesService
+
+<button @onclick="ToggleSavedState"
+        class="@(IsSaved ? "bg-red-500" : "bg-blue-500") text-white px-4 py-2 rounded">
+    @if (IsSaved)
+    {
+        <span>Remove from Favorites</span>
+    }
+    else
+    {
+        <span>Save Vehicle</span>
+    }
+</button>
+
+@code {
+    [Parameter] public VehicleDetails Vehicle { get; set; } = default!;
+    private bool IsSaved;
+
+    protected override async Task OnInitializedAsync()
+    {
+        IsSaved = await FavouritesService.IsVehicleSavedAsync(Vehicle.Registration);
+    }
+
+    private async Task ToggleSavedState()
+    {
+        if (IsSaved)
+        {
+            await FavouritesService.RemoveVehicleAsync(Vehicle.Registration);
+        }
+        else
+        {
+            var savedVehicle = new SavedVehicle
+                {
+                    Registration = Vehicle.Registration,
+                    Make = Vehicle.Make,
+                    Model = Vehicle.Model,
+                    MotExpiryDate = Vehicle.MotExpiryDate,
+                    LastChecked = DateTime.Now
+                };
+            await FavouritesService.SaveVehicleAsync(savedVehicle);
+        }
+        IsSaved = !IsSaved;
+    }
+}

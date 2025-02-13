@@ -1,0 +1,51 @@
+﻿@page "/saved-vehicles"
+@inject IVehicleFavouritesService FavouritesService
+
+<h1 class="text-2xl font-bold mb-4">Saved Vehicles</h1>
+
+@if (_vehicles == null)
+{
+    <p>Loading...</p>
+}
+else if (!_vehicles.Any())
+{
+    <p>No saved vehicles found.</p>
+}
+else
+{
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        @foreach (var vehicle in _vehicles)
+        {
+            <div class="bg-white rounded-lg shadow p-4">
+                <h2 class="text-xl font-bold">@vehicle.Registration</h2>
+                <p>@vehicle.Make @vehicle.Model</p>
+                <p>MOT Expires: @vehicle.MotExpiryDate.ToString("d MMMM yyyy")</p>
+                <p class="text-sm text-gray-500">Last checked: @vehicle.LastChecked.ToString("g")</p>
+                <button @onclick="() => RemoveVehicle(vehicle.Registration)"
+                        class="mt-2 bg-red-500 text-white px-4 py-2 rounded">
+                    Remove
+                </button>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    private IEnumerable<SavedVehicle>? _vehicles;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadVehicles();
+    }
+
+    private async Task LoadVehicles()
+    {
+        _vehicles = await FavouritesService.GetSavedVehiclesAsync();
+    }
+
+    private async Task RemoveVehicle(string registration)
+    {
+        await FavouritesService.RemoveVehicleAsync(registration);
+        await LoadVehicles();
+    }
+}

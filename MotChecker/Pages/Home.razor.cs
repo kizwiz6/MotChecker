@@ -10,9 +10,6 @@ namespace MotChecker.Pages;
 /// </summary>
 public partial class Home : ComponentBase
 {
-    [Inject]
-    public IVehicleService VehicleService { get; set; } = default!;
-
     private readonly SearchModel searchModel = new();
     private VehicleDetails? vehicleDetails;
     private string? errorMessage;
@@ -60,8 +57,6 @@ public partial class Home : ComponentBase
     /// </summary>
     public class SearchModel
     {
-        private string _registration = string.Empty;
-
         [Required(ErrorMessage = "Please enter a registration number")]
         [RegularExpression(@"^[A-Z0-9 ]{1,11}$",
             ErrorMessage = "Please enter a valid UK registration number")]
@@ -70,6 +65,8 @@ public partial class Home : ComponentBase
             get => _registration;
             set => _registration = value?.ToUpper() ?? string.Empty;
         }
+
+        private string _registration = string.Empty;
 
         public string CleanRegistration => Registration.Replace(" ", "");
     }

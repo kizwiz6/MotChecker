@@ -1,3 +1,4 @@
+using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using MotChecker;
@@ -30,6 +31,9 @@ builder.Services.AddMemoryCache();
 
 // Real service implementation
 builder.Services.AddScoped<IVehicleService, VehicleService>();
+
+builder.Services.AddScoped<IVehicleFavouritesService, LocalStorageVehicleFavouritesService>();
+builder.Services.AddBlazoredLocalStorage(); // Add Blazored.LocalStorage package
 
 // Add logging
 builder.Services.AddLogging(logging => logging

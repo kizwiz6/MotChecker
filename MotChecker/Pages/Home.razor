@@ -2,6 +2,8 @@
 @using MotChecker.Components
 @using MotChecker.Services
 @using System.ComponentModel.DataAnnotations
+@inject IVehicleService VehicleService
+@inject IVehicleFavouritesService FavouritesService
 
 <PageTitle>MOT History Checker</PageTitle>
 
@@ -24,7 +26,7 @@
                         <div class="bg-blue-900 text-white px-4 py-3 rounded-l font-bold">
                             GB
                         </div>
-                        <InputText id="registration" 
+                        <InputText id="registration"
                                    @bind-Value="searchModel.Registration"
                                    @oninput="@(e => HandleInput(e))"
                                    class="flex-1 p-3 text-2xl font-bold text-center uppercase focus:outline-none"
@@ -70,13 +72,16 @@
         {
             <div class="max-w-3xl mx-auto bg-white rounded-lg shadow-xl overflow-hidden animate-fade-in">
                 <div class="p-6 border-b border-gray-200 bg-gray-50">
-                    <div class="flex items-center">
-                        <div class="flex-shrink-0">
-                            <svg class="h-8 w-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                            </svg>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <svg class="h-8 w-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                            </div>
+                            <h2 class="ml-3 text-xl font-semibold text-gray-900">Vehicle Details</h2>
                         </div>
-                        <h2 class="ml-3 text-xl font-semibold text-gray-900">Vehicle Details</h2>
+                        <SaveVehicleButton Vehicle="@vehicleDetails" />
                     </div>
                 </div>
 
